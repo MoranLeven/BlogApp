@@ -1,0 +1,236 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    
+    .reply{
+        margin: 10px 20px;
+        border: 2px solid black;
+        padding: 5px;
+        content : attr(data-placeholder)
+    }
+    .show-comment, .comment, .add-reply-btn, .save-reply-btn, .delete-reply-btn{
+        margin: 2px 15px;
+        color: white;
+        text-decoration: none;
+        padding: 7px 15px 7px 15px;
+        background-color:#1cb0f6;
+        border-radius: 25px;
+        border-bottom: #0e719f solid 5px;
+    }
+
+    .show-comment:hover, .comment:hover, .add-reply-btn:hover, .save-reply-btn:hover, .delete-reply-btn:hover{
+        border: #76e730 solid 10px;
+        background-color:#5ece18;
+        border-bottom: rgb(84, 186, 20) solid 4px;
+    }
+
+
+</style>
+<button class="comment" onclick="addComment()">Add Comment</button>
+<button class="show-comment" onclick="getComment('{{blog_id}}')">Display Comments</button>
+<div class="csrfToken">
+    {% csrf_token %}
+</div>
+<div class="replies-container">
+    {% comment %} {% autoescape off %}
+        {% for reply in replies  %}
+            {{reply}}
+        {% endfor %}
+    {% endautoescape %} {% endcomment %}
+
+</div>
+
+
+<script>
+    const repliesContainer = document.querySelector(".replies-container")
+    let lastComment = "firstComment"
+    let lastReply = "firstReply"
+    //defining the skeleton of reply 
+    //creating the child
+    const addReplyButton = document.createElement("button")
+    const saveReplyButton = document.createElement("button")
+    const deleteReplyButton = document.createElement("button")
+    const replyContainer = document.createElement("div")
+    const reply = document.createElement("div")
+
+
+    //setting the attributes
+    deleteReplyButton.className = "delete-reply-btn"
+    saveReplyButton.className = "save-reply-btn"
+    addReplyButton.className = "add-reply-btn"
+    deleteReplyButton.setAttribute("onclick","deleteReply()")
+    addReplyButton.setAttribute("onclick","addReply()")
+    saveReplyButton.setAttribute("onclick","saveReply()")
+    deleteReplyButton.innerText = "Delete🗑️"
+    addReplyButton.innerText = "Reply🔁"
+    saveReplyButton.innerText = "Save🗃️"
+    replyContainer.className = "reply-container"
+    replyContainer.setAttribute("data-issaved","false")
+    reply.className="reply"
+    reply.setAttribute("contenteditable","true")
+
+    //lets add muscles to the skeleton
+    replyContainer.append(reply,addReplyButton,saveReplyButton,deleteReplyButton)
+
+    function addComment(){
+        if (lastComment==="firstComment" || 
+                ( lastComment?.querySelector(".reply")?.innerText?.trim() !== "" && lastComment.dataset['issaved']==='true' &&
+                ( lastReply==='firstReply' || ( lastReply.querySelector(".reply").innerText.trim()!=="" &&
+                 lastReply.dataset['issaved'] === "true") ) ) ){
+            const cloneReply = replyContainer.cloneNode(true)
+            cloneReply.querySelector(".reply").innerText = ""
+            cloneReply.setAttribute("data-parentid","{{blog_id}}")
+            cloneReply.setAttribute("data-comment","true")
+            lastComment = cloneReply
+            repliesContainer.appendChild(cloneReply)
+        }else{
+            Swal.fire({
+                    title: 'No Comment',
+                    text: lastComment?.querySelector(".reply")?.innerText?.trim()===""?"Please complete the last comment first":"Please save the comment first",
+                    icon: 'error',
+                    confirmButtonText: 'Cool'
+            })
+        }
+    }
+
+    function getComment(blog_id){
+        //first fetch the data from backend
+        var xhr = new XMLHttpRequest()
+        var params = `blog_id=${blog_id}`
+        xhr.open("GET",'/getReply?'+params,true)
+        xhr.setRequestHeader("X-CSRFToken",document.querySelector("input").value)
+        xhr.setRequestHeader("Content-Type","application/json")
+        // xhr.
+        //do post processing here.
+        xhr.onload = function(){
+            displayComments(JSON.parse(xhr.responseText)['replyData'])
+        }
+        xhr.send()
+    }
+
+
+    function displayComments(repliesData){        
+        for(var replyData of repliesData){
+            //get the parent id
+            replyData = replyData.fields
+            var parentId = replyData['parentId']
+            var replyId = replyData['replyId']
+            //clone a node
+            const cloneReply = replyContainer.cloneNode(true)
+            cloneReply.setAttribute("data-parentid",parentId)
+            cloneReply.setAttribute("data-replyid",replyId)
+            cloneReply.dataset['issaved'] = true
+            replyTab = cloneReply.querySelector('.reply')
+            replyTab.setAttribute("contenteditable",false)
+            replyTab.innerText = replyData['replyData']
+            //add the pa
+            //if parentId is equal to blog id then it is a 
+            //comment and slap it directly
+            if(parentId === '{{blog_id}}'){
+                repliesContainer.appendChild(cloneReply)
+            }else{
+                parentContainer = document.querySelector(`div[data-replyid='${parentId}']`)
+                cloneReply.style.marginLeft = parseInt(parentContainer?.style?.marginLeft) ? parseInt(parentContainer?.style?.marginLeft) + 15 + 'px' : "15px"
+                parentContainer.appendChild(cloneReply)
+            }
+        }
+    }
+
+    function addReply(){
+        const replyParent = this.event.target.parentElement
+        const parentId = replyParent.dataset['replyid']
+        const replyData = replyParent.querySelector('.reply').textContent 
+        const isSaved = replyParent.dataset['issaved']
+        if  ((lastComment === "firstComment" || lastComment?.dataset['issaved']==='true') &&
+        ( lastReply==='firstReply' || ( lastReply.querySelector(".reply").innerText.trim()!=="" && lastReply.dataset['issaved']==="true" && replyData.trim()!=="" && isSaved === "true"))){
+            const cloneReply = replyContainer.cloneNode(true)
+            cloneReply.style.marginLeft = parseInt(replyParent.style.marginLeft) ? parseInt(replyParent.style.marginLeft) + 15 + 'px' : "15px"
+            cloneReply.querySelector(".reply").innerText = ""
+            cloneReply.setAttribute("data-parentid",parentId)
+            lastReply = cloneReply
+            replyParent.appendChild(cloneReply)
+       
+            
+        }else{
+            Swal.fire({
+                    title: 'No Reply',
+                    text: replyData.trim()===""?"Please add a reply":"Please first save reply",
+                    icon: 'error',
+                    confirmButtonText: 'Cool'
+            })
+        }
+    }
+
+    function saveReply(){
+        const replyParent = this.event.target.parentElement
+        const replyData = replyParent.querySelector('.reply').textContent 
+        //shall not be able to edit content now
+        if(replyData.trim() === ""){
+            Swal.fire({
+                title: 'Error while Saving.',
+                text: 'Please add some text.',
+                icon: 'error',
+                confirmButtonText: 'Cool'
+            })
+        }else{
+            //do the xhr things here
+            var xhr = new XMLHttpRequest()
+            xhr.open("POST","/addReply",true)
+            data = {
+                "type":"Create",
+                "replyData":replyData,
+                "parentId":replyParent.dataset['parentid'],
+                "isComment": replyParent.dataset['comment'] ==='true'?true:false,
+                "upvote":10,
+                "downvote":5
+            }
+            console.log(document.querySelector("input").value)
+            xhr.setRequestHeader("X-CSRFToken",document.querySelector("input").value)
+            xhr.setRequestHeader("Content-Type","application/json")
+
+            //lets handle the xhr response
+            xhr.onload = function(){
+                const response =  JSON.parse(xhr.responseText)
+                replyParent.setAttribute("data-replyid",response['replyId'])
+            }
+
+            xhr.send(JSON.stringify(data))
+
+            replyParent.querySelector('.reply').setAttribute("contenteditable","false")
+            replyParent.dataset['issaved'] = "true"
+            // Swal.fire({
+            //     title: "[+]Saving",
+            //     text: "Your data is successfully Saved.",
+            //     icon: "success"
+            // });
+        }
+    }
+
+    function deleteReply(){
+        if (event.target.parentElement === lastComment){
+            lastComment ="firstComment"
+        }else if(event.target.parentElement === lastReply){
+            lastReply = "firstReply"
+        }else if(event.target.parentElement === lastComment && event.target.parentElement === lastReply){
+            lastComment = "firstComment"
+            lastReply = "firstReply"
+        }
+        const replyData = this.event.target.parentElement
+        const replyId = replyData.dataset['replyid']
+        this.event.target.parentElement.remove()
+        const xhr = new XMLHttpRequest()
+        xhr.open("DELETE","/deleteReply",true)
+        xhr.setRequestHeader("X-CSRFToken",document.querySelector("input").value)
+        xhr.setRequestHeader("Content-Type","application/json")
+        xhr.onload = function(){
+            console.log(JSON.parse(xhr.responseText))
+            Swal.fire({
+                title: '🗑️',
+                text: 'Reply Deleted.😐',
+                icon: 'success',
+                confirmButtonText: 'Cool'
+            })
+        }
+        xhr.send(JSON.stringify({"replyId":replyId}))
+    }
+</script>
+

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block toolbar %}
+    <h1><a href="{% url 'create_blog' %}"> Create Blog </a></h1>
+{% endblock toolbar %}
+
+{% block home_style %}
+<head>
+    <link rel='stylesheet' href="{% static 'css/home.css' %}">
+</head>
+{% endblock home_style %}
+{% block home_page %}
+        <table class="fancy-table">
+            <thead>
+                <td>TITLE</td>
+                <td>AUTHOR</td>
+                <td>CREATED ON</td>
+                <td>LAST UPDATED</td>
+                <td>BLOG</td>
+                <td>IMAGE</td>
+                <td>URL</td>
+                <td>Update</td>
+                <td>Version</td>
+            </thead>
+    {% for blog,version in blog_version %}
+            <tr class="blog" data-blog_id="{{blog.blog_id}}">
+                    <td><a href="{%url 'blog' blog.blog_id%}">{{blog.title}}</a></td>
+                    <td>{{blog.author}}</td>
+                    <td>{{blog.created_on}}</td>
+                    <td>{{blog.updated_on}}</td>
+                    <td>{{blog.blog_content| slice:":80"}}</td>
+                    <td><a target="_blank" href="{{blog.image.url}}"><img src="{{blog.image.url}}" width=50></a></td>
+                    <td><a href="#">{{blog.url}}</a></td>
+                    <td> <a class="update" href="{% url 'update_blog' blog.blog_id %}">Update</a></td>
+                    <td>
+                        <span class="toggle-btn" onclick="toggleTable('inner-table-{{blog.blog_id}}')">Show Details</span>
+                        <table id="inner-table-{{blog.blog_id}}" class='vertical-table' style="display:none">
+                            <tr>
+                            {% for vuhzon in version.versions %}
+                                <td>{{vuhzon|slice:":10"}}</td>
+                            {% endfor %}
+                            </tr>
+                        </table>
+                    </td>
+            </tbody>
+    {% endfor %}
+        </table>
+
+    <script>
+        var blogs = document.querySelectorAll(".blog")
+        var lastToggled = null;
+        {% comment %} function openInNewTab(href) {
+            Object.assign(document.createElement('a'), {
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                href: href,
+            }).click();
+            } {% endcomment %}
+        blogs.forEach((blog)=>{
+            blog.addEventListener("click",(event)=>
+                                    {
+                                        
+                                            var blogID = blog.dataset.blog_id
+                                            {% comment %} window.open("{%url 'update_home' uuid=blogID%}"+blogID) {% endcomment %}
+                                })
+        })
+        
+        function toggleTable(tableId) {
+            var table = document.getElementById(tableId);
+            if (table.style.display === 'none' || table.style.display === '') {
+                if(lastToggled){
+                    lastToggled.style.display = 'none'
+                }
+                    table.style.display = 'table';
+                    lastToggled = table
+                
+            } else {
+                table.style.display = 'none';
+            }
+    }
+    </script>
+{% endblock home_page %}

@@ -1,0 +1,25 @@
+body {
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 18px;
+    }
+header {
+    border-bottom: 1px solid #999;
+    margin-bottom: 2rem;
+    display: flex;
+    }
+header h1 a{
+    color: white;
+    text-decoration: none;
+    margin: 5px;
+    padding: 7px 15px 7px 15px;
+    background-color:#1cb0f6;
+    border-radius: 25px;
+    border-bottom: #0e719f solid 5px;
+}
+header h1 a:hover {
+    text-decoration: none;
+    border: #76e730 solid 10px;
+    background-color:#5ece18;
+    border-top: rgb(107, 255, 14) solid 4px;
+    border-bottom: rgb(84, 186, 20) solid 4px;
+    }

@@ -1,0 +1,112 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
+
+.fancy-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+}
+
+.fancy-table thead {
+    background-color: #4CAF50;
+    color: #fff;
+}
+
+.fancy-table thead,
+.fancy-table td {
+    padding: 12px;
+    text-align: left;
+    word-wrap: break-word;
+}
+
+.fancy-table th {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.fancy-table tbody tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.fancy-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.fancy-table tbody tr:hover {
+    background-color: #ddd;
+}
+
+.fancy-table tbody td {
+    font-size: 14px;
+}
+
+.fancy-table tfoot {
+    background-color: #f9f9f9;
+    font-weight: bold;
+}
+
+.fancy-table tfoot td {
+    padding: 12px;
+    text-align: right;
+}
+
+
+.vertical-table {
+    border-collapse: collapse;
+    width: auto;
+    border: 1px solid #ddd;
+    margin-top: 15px;
+    padding: 0;
+}
+.vertical-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    width: 100px; /* Adjust width as needed */
+    align-items: center;
+}
+.vertical-table th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    width: 100px; /* Adjust width as needed */
+    text-align: center;
+}
+.vertical-table tr {
+    display: block;
+}
+.vertical-table td, .vertical-table th {
+    display: block;
+    text-align: left;
+}
+.vertical-table td:last-child, .vertical-table th:last-child {
+    border-right: none; /* Remove right border for the last cell */
+}
+
+/* Button to toggle visibility */
+a.update, .toggle-btn {
+    cursor: pointer;
+    color: white;
+    text-decoration: none;
+    margin: 5px;
+    padding: 7px 15px 7px 15px;
+    background-color:#1cb0f6;
+    border-radius: 25px;
+    border-bottom: #0e719f solid 5px;
+}
+
+a.update:hover, .toggle-btn:hover{
+    text-decoration: none;
+    /* border: #76e730 solid 10px; */
+    background-color:#5ece18;
+    /* border-top: rgb(107, 255, 14) solid 4px; */
+    border-bottom: rgb(84, 186, 20) solid 5px;
+}
