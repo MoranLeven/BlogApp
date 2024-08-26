@@ -1,0 +1,28 @@
+{% load static %}
+<head>
+    <link rel='stylesheet' href='{%static "css/base.css" %}'>
+</head>
+
+{% block home_style %}
+
+{% endblock home_style %}
+
+<header>
+    <h1><a href="{% url 'home' %}"> Home </a></h1>
+    {% block toolbar %}
+    
+    {% endblock toolbar %}
+</header>
+{% block blog %}
+
+{% endblock blog %}
+
+{% block home_page %}
+{% endblock home_page %}
+
+{% block create_blog %}
+{% endblock create_blog %}
+
+{% block update_blog %}
+{% endblock update_blog %}
+
